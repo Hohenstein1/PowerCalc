@@ -16,11 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reconstruct source
+      - name: Verify source
         shell: bash
         run: |
-          mkdir -p src
-          cat .bootstrap/pc.* | base64 --decode > src/powercalc.cpp
           test "$(git hash-object src/powercalc.cpp)" = "888ac446d930394b1000f70378e28e944e210e2a"
 
       - name: Build and smoke test
@@ -40,3 +38,19 @@ jobs:
           make check STATIC=1
           file powercalc
           file powercalc | grep -q "statically linked"
+
+      - name: Verify GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release view v0.3.0 --json tagName,name,isDraft,isPrerelease
+          mkdir -p release-check
+          gh release download v0.3.0 \
+            --pattern "powercalc-0.3.0-linux-x86_64.tar.gz" \
+            --pattern "powercalc-0.3.0-linux-x86_64.tar.gz.sha256" \
+            --dir release-check
+          (cd release-check && sha256sum -c powercalc-0.3.0-linux-x86_64.tar.gz.sha256)
+          tar -C release-check -xzf release-check/powercalc-0.3.0-linux-x86_64.tar.gz
+          release-check/powercalc-0.3.0-linux-x86_64/powercalc --version
+          file release-check/powercalc-0.3.0-linux-x86_64/powercalc | grep -q "statically linked"
