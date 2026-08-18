@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Detect version
         id: version
@@ -56,6 +56,7 @@ jobs:
           strip powercalc
           ./powercalc --version
           make check STATIC=1
+          file powercalc | grep -q "statically linked"
 
       - name: Package release
         if: steps.version.outputs.ready == 'true' && steps.existing.outputs.exists == 'false'
