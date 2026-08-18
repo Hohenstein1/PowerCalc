@@ -39,4 +39,4 @@ jobs:
           ./powercalc --version
           make check STATIC=1
           file powercalc
-          ldd powercalc 2>&1 | grep -q "not a dynamic executable"
+          file powercalc | grep -q "statically linked"
