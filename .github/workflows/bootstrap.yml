@@ -37,13 +37,13 @@ jobs:
           ./powercalc --version
           make check STATIC=1
           file powercalc
-          ldd powercalc 2>&1 | grep -q "not a dynamic executable"
+          file powercalc | grep -q "statically linked"
 
       - name: Finalize repository
         shell: bash
         run: |
           rm -rf .bootstrap .github/workflows/bootstrap.yml
-          rm -f .release-trigger
+          rm -f .release-trigger .ci-trigger
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
